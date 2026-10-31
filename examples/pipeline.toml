@@ -1,0 +1,26 @@
+[pipeline]
+name = "sales-ingestion"
+output_dir = "./output"
+fail_fast = false
+
+[settings]
+batch_size = 1000
+
+[[sources]]
+name = "sales_csv"
+type = "csv"
+path = "./sales.csv"
+
+[[transforms]]
+type = "field_mapping"
+mapping = { orderId = "order_id", total = "amount" }
+
+[[transforms]]
+type = "deduplicate"
+key = "order_id"
+
+[[sinks]]
+type = "parquet"
+name = "sales"
+path = "sales.parquet"
+

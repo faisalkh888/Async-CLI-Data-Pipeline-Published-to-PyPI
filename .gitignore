@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+.benchmark/
+output/
+examples/output/
+examples/.datapipe-checkpoint.json
+.datapipe-checkpoint.json

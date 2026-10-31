@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "async-datapipe-cli"
+version = "0.2.0"
+description = "A streaming data pipeline CLI"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "httpx>=0.27",
+  "pydantic>=2.8",
+  "typer>=0.12",
+  "pyarrow>=17.0",
+]
+
+[project.scripts]
+datapipe = "datapipe.cli:app"
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2",
+  "hypothesis>=6.112",
+  "mypy>=1.11",
+  "psutil>=6.0",
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "ruff>=0.6",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/datapipe"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["pyarrow", "pyarrow.*"]
+ignore_missing_imports = true

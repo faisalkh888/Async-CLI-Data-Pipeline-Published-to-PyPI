@@ -1,0 +1,12 @@
+{
+  "environment": {
+    "platform": "Windows",
+    "python": "3.12.14",
+    "record_count": 2000000,
+    "transforms": []
+  },
+  "elapsed_seconds": 16.881,
+  "records_per_second": 118475.9,
+  "peak_sampled_rss_mib": 60.6,
+  "parquet_output_bytes": 22735802
+}

@@ -1,0 +1,44 @@
+[pipeline]
+name = "orders-api"
+output_dir = "./http-output"
+fail_fast = false
+
+[settings]
+queue_size = 256
+request_timeout = 20
+max_retries = 4
+max_concurrency_per_host = 3
+
+[[sources]]
+name = "orders"
+type = "http"
+url = "https://api.example.com/orders"
+auth_env = "ORDERS_API_TOKEN"
+pagination = "next_url"
+records_path = "data"
+next_url_path = "next"
+
+[validation]
+required_fields = ["orderId", "total", "created_at"]
+field_types = { orderId = "integer", total = "number", created_at = "string" }
+
+[[transforms]]
+type = "field_mapping"
+mapping = { orderId = "order_id", total = "amount", created_at = "created_at" }
+
+[[transforms]]
+type = "deduplicate"
+key = "order_id"
+
+[[transforms]]
+type = "aggregate_daily"
+date_field = "created_at"
+value_field = "amount"
+output_date_field = "date"
+output_value_field = "total_amount"
+
+[[sinks]]
+type = "parquet"
+name = "daily_orders"
+path = "daily-orders"
+partition_by = ["date"]
