@@ -1,0 +1,16 @@
+[pipeline]
+name = "plugin-demo"
+output_dir = "./plugin-output"
+
+[[sources]]
+name = "demo_source"
+type = "plugin"
+plugin = "demo"
+
+[sources.config]
+record_id = 42
+
+[[sinks]]
+name = "plugin_records"
+type = "jsonl"
+path = "plugin-records.jsonl"
