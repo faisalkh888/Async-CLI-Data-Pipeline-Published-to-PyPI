@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1117">
+  <meta name="description" content="A project dashboard and introduction to datapipe, the async CLI data pipeline.">
+  <title>datapipe — Pipeline Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#overview" aria-label="datapipe home">
+        <span class="brand-mark">d<span>·</span></span>
+        <span>datapipe<small>PIPELINE STUDIO</small></span>
+      </a>
+      <div class="workspace-label">WORKSPACE</div>
+      <nav class="nav" aria-label="Main navigation">
+        <a class="nav-item active" href="#overview"><span class="nav-icon">▦</span>Overview</a>
+        <a class="nav-item" href="#pipeline"><span class="nav-icon">⌘</span>Pipeline</a>
+        <a class="nav-item" href="#sources"><span class="nav-icon">⇣</span>Sources <span class="nav-count">2</span></a>
+        <a class="nav-item" href="#outputs"><span class="nav-icon">▤</span>Outputs</a>
+        <a class="nav-item" href="#commands"><span class="nav-icon">&gt;_</span>Quick start</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="engine-card"><span class="pulse"></span><div><b>Engine ready</b><small>Local demo workspace</small></div></div>
+        <div class="version-row"><span>VERSION</span><span>0.2.0 <i>LOCAL</i></span></div>
+        <div class="sidebar-footer">Built for streaming data<br>Python 3.12+ · Open source</div>
+      </div>
+    </aside>
+
+    <main class="main-content" id="overview">
+      <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <b>Overview</b></div><div class="top-actions"><span class="local-badge"><span></span>LOCAL ENVIRONMENT</span><a class="icon-button" href="../README.md" title="Open project README">↗</a></div></header>
+      <div class="content-wrap">
+        <section class="welcome-row">
+          <div><div class="eyebrow">DATA PIPELINES, WITHOUT THE DRAMA</div><h1>Good morning, <span>builder.</span></h1><p class="subtitle">Your async data pipeline at a glance.</p></div>
+          <a class="primary-button" href="#commands"><span>▶</span> Run a pipeline</a>
+        </section>
+
+        <section class="stats-grid" aria-label="Project metrics">
+          <article class="stat-card"><div class="stat-heading">THROUGHPUT <span class="metric-icon violet">↗</span></div><div class="stat-value">118,475 <small>records / sec</small></div><div class="stat-note"><span class="dot green"></span>Measured local benchmark</div><div class="sparkline spark-violet"><svg viewBox="0 0 240 42" preserveAspectRatio="none"><path d="M0 33 C18 30 18 36 35 25 S62 32 80 19 S107 29 123 17 S148 22 165 12 S193 23 209 8 S228 14 240 2"/></svg></div></article>
+          <article class="stat-card"><div class="stat-heading">PEAK MEMORY <span class="metric-icon blue">◫</span></div><div class="stat-value">60.6 <small>MiB</small></div><div class="stat-note"><span class="dot blue-dot"></span>2 million records streamed</div><div class="sparkline spark-blue"><svg viewBox="0 0 240 42" preserveAspectRatio="none"><path d="M0 23 C24 21 28 25 48 18 S75 21 94 17 S123 20 144 15 S172 17 191 13 S217 16 240 10"/></svg></div></article>
+          <article class="stat-card"><div class="stat-heading">TEST SUITE <span class="metric-icon green-icon">✓</span></div><div class="stat-value">21 <small>tests passing</small></div><div class="stat-note"><span class="dot green"></span>Latest local run</div><div class="test-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+          <article class="stat-card"><div class="stat-heading">PACKAGE STATUS <span class="metric-icon amber">◇</span></div><div class="stat-value status-value"><span class="status-pill">PRE-RELEASE</span></div><div class="stat-note">Ready for TestPyPI setup</div><div class="release-track"><span></span><i></i><i></i><i></i></div><div class="release-labels"><span>Build</span><span>Test</span><span>Publish</span></div></article>
+        </section>
+
+        <div class="section-heading" id="pipeline"><div><div class="eyebrow">HOW RECORDS FLOW</div><h2>Pipeline overview</h2></div><span class="config-chip"><span class="file-icon">▤</span> examples/pipeline.toml</span></div>
+        <section class="pipeline-card">
+          <div class="pipeline-top"><div><b>sales-ingestion</b><span class="pipeline-sub">Streaming pipeline · bounded queue</span></div><span class="ready-tag"><span class="dot green"></span>CONFIG VALID</span></div>
+          <div class="flow">
+            <article class="flow-node source-node" id="sources"><div class="node-icon orange-icon">⇣</div><div class="node-title">Sources</div><div class="node-detail">CSV · HTTP API</div><span class="node-count">2 configured</span></article>
+            <span class="connector"><i></i><i></i><i></i></span>
+            <article class="flow-node transform-node"><div class="node-icon purple-icon">⌘</div><div class="node-title">Transforms</div><div class="node-detail">Map · Deduplicate</div><span class="node-count">Ordered steps</span></article>
+            <span class="connector"><i></i><i></i><i></i></span>
+            <article class="flow-node validate-node"><div class="node-icon blue-icon">✓</div><div class="node-title">Validate</div><div class="node-detail">Typed records</div><span class="node-count">Dead-letter ready</span></article>
+            <span class="connector"><i></i><i></i><i></i></span>
+            <article class="flow-node output-node" id="outputs"><div class="node-icon green-icon">▤</div><div class="node-title">Outputs</div><div class="node-detail">Partitioned Parquet</div><span class="node-count">Atomic commit</span></article>
+          </div>
+          <div class="pipeline-foot"><span><span class="mini-icon">⌁</span> Backpressure enabled <b>·</b> Queue size 1,000</span><span>Retries with jitter <b>·</b> Checkpointing enabled</span></div>
+        </section>
+
+        <div class="lower-grid">
+          <section class="panel command-panel" id="commands"><div class="panel-heading"><div><div class="eyebrow">GET STARTED</div><h2>Run it locally</h2></div><button class="copy-button" id="copy-command" aria-label="Copy install command">▢ <span>Copy</span></button></div>
+            <div class="terminal"><div class="terminal-bar"><span></span><span></span><span></span><small>powershell — datapipe</small></div><pre><span class="prompt">›</span> uv run datapipe validate-config examples/pipeline.toml
+<span class="success">Valid pipeline 'sales-ingestion' (1 source(s), 1 sink(s))</span>
+
+<span class="prompt">›</span> uv run datapipe run examples/pipeline.toml --dry-run
+<span class="comment">INFO source_complete</span>
+<span class="success">Completed sales-ingestion: {'sales': 2}</span></pre></div>
+            <div class="command-links"><a href="../README.md">Read documentation <span>↗</span></a><a href="../examples/pipeline.toml">View example config <span>↗</span></a></div>
+          </section>
+          <section class="panel activity-panel"><div class="panel-heading"><div><div class="eyebrow">PROJECT SNAPSHOT</div><h2>Build status</h2></div><span class="snapshot-tag">LOCAL</span></div>
+            <div class="activity-list"><div class="activity-row"><span class="activity-icon ok">✓</span><div><b>Async engine</b><small>Bounded queues and source isolation</small></div><span class="row-status">READY</span></div><div class="activity-row"><span class="activity-icon ok">✓</span><div><b>Sources &amp; transforms</b><small>CSV, JSONL, HTTP and plugin hooks</small></div><span class="row-status">READY</span></div><div class="activity-row"><span class="activity-icon ok">✓</span><div><b>Quality checks</b><small>Tests, lint, types and wheel build</small></div><span class="row-status">PASSING</span></div><div class="activity-row"><span class="activity-icon pending">↗</span><div><b>Public release</b><small>Publish after repository setup</small></div><span class="row-status pending-text">PENDING</span></div></div>
+            <div class="release-callout"><span class="callout-icon">✦</span><div><b>From source to production</b><p>Explore the architecture, run the sample, and prepare a TestPyPI release.</p></div><a href="../RELEASE.md" aria-label="Read release guide">→</a></div>
+          </section>
+        </div>
+        <footer class="page-footer"><span><b>datapipe</b> · Async CLI Data Pipeline</span><span>Python 3.12+ <i>·</i> Built for reliable streaming</span></footer>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite">Install command copied</div>
+  <script src="app.js"></script>
+</body>
+</html>
