@@ -52,5 +52,6 @@ ignore_missing_imports = true
 
 [dependency-groups]
 dev = [
+    "pip-audit>=2.10.1",
     "pytest-cov>=7.1.0",
 ]
