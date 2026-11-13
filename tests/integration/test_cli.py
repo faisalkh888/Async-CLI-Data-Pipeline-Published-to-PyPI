@@ -1,3 +1,5 @@
+from importlib.metadata import version
+
 from typer.testing import CliRunner
 
 from datapipe import __version__
@@ -9,7 +11,7 @@ runner = CliRunner()
 def test_version_option():
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
-    assert result.stdout.strip() == __version__
+    assert result.stdout.strip() == version("async-datapipe-cli") == __version__
 
 
 def test_validate_config_command():
