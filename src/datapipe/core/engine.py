@@ -56,9 +56,14 @@ def _heavy(record: Record, transform: HeavyTransform) -> Record:
     return result
 
 
+def _heavy_batch(records: list[Record], transform: HeavyTransform) -> list[Record]:
+    return [_heavy(record, transform) for record in records]
+
+
 class _TransformState:
     def __init__(self, config: PipelineConfig):
         self.transforms = config.transforms
+        self.heavy_workers = config.settings.heavy_workers
         self.plugin_transforms = {
             index: _make_plugin("transforms", transform.plugin, transform.config)
             for index, transform in enumerate(config.transforms)
@@ -108,6 +113,52 @@ class _TransformState:
                 operation = getattr(plugin, "apply", plugin)
                 current = operation(current)
         return current
+
+    async def apply_batch(
+        self, records: list[Record], pool: ProcessPoolExecutor | None
+    ) -> list[tuple[Record | None, Exception | None]]:
+        outcomes: list[tuple[Record | None, Exception | None]] = []
+        if pool is not None and len(self.transforms) == 1 and isinstance(self.transforms[0], HeavyTransform):
+            loop = asyncio.get_running_loop()
+            chunk_size = max(1, (len(records) + self.heavy_workers - 1) // self.heavy_workers)
+            chunks = [records[index : index + chunk_size] for index in range(0, len(records), chunk_size)]
+            chunk_results = await asyncio.gather(
+                *(loop.run_in_executor(pool, _heavy_batch, chunk, self.transforms[0]) for chunk in chunks),
+                return_exceptions=True,
+            )
+            transformed: list[Record] = []
+            batch_failed = False
+            for chunk_result in chunk_results:
+                if isinstance(chunk_result, BaseException):
+                    if not isinstance(chunk_result, Exception):
+                        raise chunk_result
+                    batch_failed = True
+                else:
+                    transformed.extend(chunk_result)
+            if not batch_failed:
+                return [(record, None) for record in transformed]
+
+            # Retry individually to isolate a record that caused a worker failure.
+            if batch_failed:
+                for record in records:
+                    try:
+                        transformed_record: Record | None = await loop.run_in_executor(
+                            pool, _heavy, record, self.transforms[0]
+                        )
+                    except Exception as exc:  # noqa: BLE001 - transform failures are per-record.
+                        outcomes.append((None, exc))
+                    else:
+                        outcomes.append((transformed_record, None))
+                return outcomes
+
+        for record in records:
+            try:
+                transformed_record = await self.apply(record, pool)
+            except Exception as exc:  # noqa: BLE001 - transform failures are per-record.
+                outcomes.append((None, exc))
+            else:
+                outcomes.append((transformed_record, None))
+        return outcomes
 
     def finish(self) -> list[Record]:
         result: list[Record] = []
@@ -201,6 +252,7 @@ async def run_pipeline(config: PipelineConfig, *, dry_run: bool = False, resume:
                     state = _TransformState(config) if not sink.dead_letters else None
                     count = 0
                     try:
+                        stop_after_batch = False
                         while True:
                             item = await queues[sink.name].get()
                             if item is _END:
@@ -211,25 +263,41 @@ async def run_pipeline(config: PipelineConfig, *, dry_run: bool = False, resume:
                                 count += 1
                                 continue
                             assert state is not None
-                            try:
-                                record = await state.apply(item["record"], pool)
-                            except Exception as exc:
-                                errors.append({"source": item["source"], "error": str(exc)})
-                                logger.error(
-                                    "record_transform_failed",
-                                    extra={"source": item["source"], "run_id": run_id},
-                                )
-                                if dead_letter_sinks:
-                                    await queues[dead_letter_sinks[0].name].put(
-                                        {"source": item["source"], "error": str(exc), "record": item["record"]}
+                            batch = [item]
+                            while len(batch) < config.settings.batch_size:
+                                try:
+                                    next_item = queues[sink.name].get_nowait()
+                                except asyncio.QueueEmpty:
+                                    break
+                                if next_item is _END:
+                                    stop_after_batch = True
+                                    break
+                                batch.append(next_item)
+                            outcomes = await state.apply_batch([entry["record"] for entry in batch], pool)
+                            for entry, (record, error) in zip(batch, outcomes, strict=True):
+                                if error is not None:
+                                    errors.append({"source": entry["source"], "error": str(error)})
+                                    logger.error(
+                                        "record_transform_failed",
+                                        extra={"source": entry["source"], "run_id": run_id},
                                     )
-                                elif config.pipeline.fail_fast:
-                                    raise
-                                continue
-                            if record is not None:
-                                if writer:
-                                    writer.write(record)
-                                count += 1
+                                    if dead_letter_sinks:
+                                        await queues[dead_letter_sinks[0].name].put(
+                                            {
+                                                "source": entry["source"],
+                                                "error": str(error),
+                                                "record": entry["record"],
+                                            }
+                                        )
+                                    elif config.pipeline.fail_fast:
+                                        raise error
+                                    continue
+                                if record is not None:
+                                    if writer:
+                                        writer.write(record)
+                                    count += 1
+                            if stop_after_batch:
+                                break
                         if state:
                             for record in state.finish():
                                 if writer:

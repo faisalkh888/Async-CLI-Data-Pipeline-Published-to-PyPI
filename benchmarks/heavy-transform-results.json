@@ -1,0 +1,43 @@
+{
+  "machine": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+  "platform": "Windows",
+  "python": "3.14.7",
+  "workload": {
+    "records": 10000,
+    "sha256_iterations_per_record": 2000,
+    "queue_size": 8192,
+    "batch_size": 2048,
+    "parallel_workers": 4,
+    "measurement": "full streaming pipeline, including JSONL generation, transform, and Parquet output"
+  },
+  "sequential_runs": [
+    {"seconds": 25.663, "records_per_second": 389.7, "parent_peak_rss_mib": 69.4},
+    {"seconds": 25.540, "records_per_second": 391.5, "parent_peak_rss_mib": 69.6},
+    {"seconds": 27.431, "records_per_second": 364.6, "parent_peak_rss_mib": 69.3}
+  ],
+  "parallel_runs": [
+    {"seconds": 8.221, "records_per_second": 1216.3, "parent_peak_rss_mib": 72.0},
+    {"seconds": 8.695, "records_per_second": 1150.1, "parent_peak_rss_mib": 72.3},
+    {"seconds": 8.376, "records_per_second": 1193.9, "parent_peak_rss_mib": 71.6}
+  ],
+  "median_sequential_seconds": 25.663,
+  "median_parallel_seconds": 8.376,
+  "median_speedup": 3.0639,
+  "median_sequential_records_per_second": 389.7,
+  "median_parallel_records_per_second": 1193.9,
+  "output_bytes_each_run": 736867,
+  "worker_profile": {
+    "records": 4096,
+    "sha256_iterations_per_record": 2000,
+    "workers": 4,
+    "batch_size": 1024,
+    "aggregate_profiled_worker_seconds": 17.406,
+    "aggregate_profiled_calls": 16400392,
+    "sha256_digest_calls": 8192000
+  },
+  "notes": [
+    "The median speedup reaches the 3x target; individual paired runs varied, with one below 3x.",
+    "cProfile instruments worker processes, so profile timings include profiling overhead and are not used for the speedup calculation.",
+    "Peak RSS samples the parent process only and excludes process-pool worker memory."
+  ]
+}

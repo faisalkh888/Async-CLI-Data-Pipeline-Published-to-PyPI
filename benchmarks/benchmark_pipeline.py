@@ -17,6 +17,8 @@ def main() -> None:
     parser.add_argument("--work-dir", type=Path, default=Path(".benchmark"))
     parser.add_argument("--heavy-iterations", type=int, default=0)
     parser.add_argument("--workers", type=int, default=0)
+    parser.add_argument("--queue-size", type=int, default=256)
+    parser.add_argument("--batch-size", type=int, default=4096)
     args = parser.parse_args()
     args.work_dir.mkdir(parents=True, exist_ok=True)
     source, output = args.work_dir / "records.jsonl", args.work_dir / "output"
@@ -26,8 +28,8 @@ def main() -> None:
     config = PipelineConfig.model_validate({
         "pipeline": {"name": "memory-benchmark", "output_dir": str(output), "fail_fast": True},
         "settings": {
-            "queue_size": 256,
-            "batch_size": 4096,
+            "queue_size": args.queue_size,
+            "batch_size": args.batch_size,
             "heavy_workers": args.workers,
             "checkpoint_file": str(args.work_dir / "checkpoint.json"),
         },
@@ -62,6 +64,8 @@ def main() -> None:
         "records_per_second": round(args.records / elapsed, 1),
         "heavy_iterations": args.heavy_iterations,
         "workers": args.workers,
+        "queue_size": args.queue_size,
+        "batch_size": args.batch_size,
         "peak_rss_mib": round(peak_rss[0] / (1024 * 1024), 1),
         "output_bytes": (output / "records.parquet").stat().st_size,
     }, indent=2))
