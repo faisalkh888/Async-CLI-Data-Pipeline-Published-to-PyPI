@@ -1,0 +1,11 @@
+{
+  "records": 10000,
+  "seconds": 25.54,
+  "records_per_second": 391.5,
+  "heavy_iterations": 2000,
+  "workers": 0,
+  "queue_size": 8192,
+  "batch_size": 2048,
+  "peak_rss_mib": 69.6,
+  "output_bytes": 736867
+}

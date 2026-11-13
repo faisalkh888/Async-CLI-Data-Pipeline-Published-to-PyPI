@@ -1,0 +1,9 @@
+{
+  "records": 10000,
+  "seconds": 28.52,
+  "records_per_second": 350.6,
+  "heavy_iterations": 2000,
+  "workers": 0,
+  "peak_rss_mib": 67.3,
+  "output_bytes": 737090
+}
